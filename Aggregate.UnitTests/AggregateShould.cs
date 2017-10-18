@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using Aggregate.UnitTests.Widget;
+using Aggregate.UnitTests.Widget.Event;
 using FluentAssertions;
 using Xunit;
 
@@ -30,7 +32,7 @@ namespace Aggregate.UnitTests
         {
             var sut = new WidgetAggregate(StreamId);
 
-            sut.DoSomethingThatCreatesADomainEvent();
+            sut.DoSomethingThatCreatesADomainEvent(Guid.NewGuid());
 
             ((IAggregate)sut).CurrentVersion.Should().Be(1);
             ((IAggregate) sut).UncommitedEvents.Count().Should().Be(1);
@@ -41,9 +43,35 @@ namespace Aggregate.UnitTests
         {
             var sut = new WidgetAggregate(StreamId);
 
-            sut.DoSomethingThatCreatesADomainEvent();
+            sut.DoSomethingThatCreatesADomainEvent(Guid.NewGuid());
 
             ((IAggregate)sut).LoadedAtVersion.Should().Be(0);
+        }
+
+        [Fact]
+        public void Apply_Domain_Events_To_Itself()
+        {
+            var sut = new WidgetAggregate(StreamId);
+
+            var newGuid = Guid.NewGuid();
+            sut.DoSomethingThatCreatesADomainEvent(newGuid);
+
+            sut.LatestDomainProperty.Should().Be(newGuid.ToString());
+        }
+
+        [Fact]
+        public void Replay_Domain_Events_To_The_Aggregate()
+        {
+            var newGuid = Guid.NewGuid();
+            var domainEvents = new[]
+            {
+                new WidgetDomainEvent { DomainProperty = newGuid.ToString() }
+            };
+
+            var sut = new WidgetAggregate(StreamId);
+            ((IAggregate )sut).Replay(domainEvents);
+
+            sut.LatestDomainProperty.Should().Be(newGuid.ToString());
         }
 
     }

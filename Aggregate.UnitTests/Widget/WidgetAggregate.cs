@@ -9,9 +9,9 @@ namespace Aggregate.UnitTests.Widget
 
         public WidgetAggregate(string streamId) : base(streamId) { }
 
-        public void DoSomethingThatCreatesADomainEvent()
+        public void DoSomethingThatCreatesADomainEvent(Guid guid)
         {
-            ApplyEvent(new WidgetDomainEvent { DomainProperty = Guid.NewGuid().ToString() });
+            ApplyEvent(new WidgetDomainEvent { DomainProperty = guid.ToString() });
         }
 
         protected override void ApplyEvent(IAcceptVisitors<IWidgetVisitor> paymentIntent)
