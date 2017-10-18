@@ -14,6 +14,6 @@ namespace Aggregate
 
         void ClearUncommitedEvents();
 
-        void Replay(IEnumerable<object> events);
+        void Replay(int version, IEnumerable<object> events);
     }
 }

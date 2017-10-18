@@ -5,16 +5,17 @@ namespace Aggregate
     public abstract class Aggregate : IAggregate
     {
         private readonly List<object> uncommitedEvents = new List<object>();
-        private int currentVersion;
-        private int loadedAtVersion;
         private readonly string streamId;
+        private int loadedAtVersion;
+
+        protected int CurrentVersion;
 
         protected Aggregate(string streamId)
         {
             this.streamId = streamId;
         }
 
-        int IAggregate.CurrentVersion => currentVersion;
+        int IAggregate.CurrentVersion => CurrentVersion;
 
         int IAggregate.LoadedAtVersion => loadedAtVersion;
 
@@ -22,19 +23,19 @@ namespace Aggregate
 
         string IAggregate.StreamId => streamId;
 
-        void IAggregate.Replay(IEnumerable<object> events)
+        void IAggregate.Replay(int version, IEnumerable<object> events)
         {
             foreach (var domainEvent in events)
             {
                 ApplyEvent(domainEvent);
             }
-            loadedAtVersion = uncommitedEvents.Count;
+            loadedAtVersion = version;
             uncommitedEvents.Clear();
         }
 
         protected virtual void ApplyEvent(object domainEvent)
         {
-            currentVersion++;
+            CurrentVersion++;
             uncommitedEvents.Add(domainEvent);
         }
 
