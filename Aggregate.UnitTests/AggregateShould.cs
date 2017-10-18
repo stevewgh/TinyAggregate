@@ -30,7 +30,7 @@ namespace Aggregate.UnitTests
         {
             var sut = new WidgetAggregate(StreamId);
 
-            sut.CreateIntent();
+            sut.DoSomethingThatCreatesADomainEvent();
 
             ((IAggregate)sut).CurrentVersion.Should().Be(1);
             ((IAggregate) sut).UncommitedEvents.Count().Should().Be(1);
@@ -41,7 +41,7 @@ namespace Aggregate.UnitTests
         {
             var sut = new WidgetAggregate(StreamId);
 
-            sut.CreateIntent();
+            sut.DoSomethingThatCreatesADomainEvent();
 
             ((IAggregate)sut).LoadedAtVersion.Should().Be(0);
         }

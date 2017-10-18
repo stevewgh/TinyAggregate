@@ -1,10 +1,10 @@
 ﻿namespace Aggregate.UnitTests.Widget.Event
 {
-    public class WidgetDomainEvent : IAcceptVisitors<IWidgetVisitor>
+    public class WidgetDomainEvent : AcceptVisitorsBase<IWidgetVisitor>
     {
         public string DomainProperty { get; set; }
 
-        public void Accept(IWidgetVisitor visitor)
+        public override void Accept(IWidgetVisitor visitor)
         {
             visitor.Apply(this);
         }

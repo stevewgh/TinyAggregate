@@ -3,13 +3,13 @@ using Aggregate.UnitTests.Widget.Event;
 
 namespace Aggregate.UnitTests.Widget
 {
-    public class WidgetAggregate : Aggregate<IAcceptVisitors<IWidgetVisitor>>, IWidgetVisitor
+    public class WidgetAggregate : Aggregate<IWidgetVisitor>, IWidgetVisitor
     {
         public string LatestDomainProperty { get; private set; }
 
         public WidgetAggregate(string streamId) : base(streamId) { }
 
-        public void CreateIntent()
+        public void DoSomethingThatCreatesADomainEvent()
         {
             ApplyEvent(new WidgetDomainEvent { DomainProperty = Guid.NewGuid().ToString() });
         }

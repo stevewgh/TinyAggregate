@@ -2,7 +2,7 @@
 
 namespace Aggregate
 {
-    public abstract class Aggregate<TAcceptVisitor> : IAggregate
+    public abstract class Aggregate : IAggregate
     {
         private readonly List<object> uncommitedEvents = new List<object>();
         private int currentVersion;
@@ -26,13 +26,13 @@ namespace Aggregate
         {
             foreach (var domainEvent in events)
             {
-                ApplyEvent((TAcceptVisitor) domainEvent);
+                ApplyEvent(domainEvent);
             }
             loadedAtVersion = uncommitedEvents.Count;
             uncommitedEvents.Clear();
         }
 
-        protected virtual void ApplyEvent(TAcceptVisitor domainEvent)
+        protected virtual void ApplyEvent(object domainEvent)
         {
             currentVersion++;
             uncommitedEvents.Add(domainEvent);
@@ -43,5 +43,21 @@ namespace Aggregate
             uncommitedEvents.Clear();
         }
 
+    }
+
+    public abstract class Aggregate<TVisitor> : Aggregate where TVisitor : class 
+    {
+        protected Aggregate(string streamId) : base(streamId) { }
+
+        protected sealed override void ApplyEvent(object domainEvent)
+        {
+            var domainEventThatAcceptsVisitors = domainEvent as IAcceptVisitors<TVisitor>;
+            ApplyEvent(domainEventThatAcceptsVisitors);
+        }
+
+        protected virtual void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
+        {
+            base.ApplyEvent(domainEvent);
+        }
     }
 }
