@@ -40,6 +40,13 @@ Example use (Aggregate and Visitor in a single class)
             domainEvent.Accept(this);
         }
 
+        public void TakePayment(decimal amount, string currency)
+        {
+            //  TODO: validation and taking payment
+            var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
+            ApplyEvent(domainEvent);
+        }
+        
         public void Accept(PaymentTaken paymentTaken)
         {
             Amount = paymentTaken.Amount;
@@ -52,4 +59,13 @@ Using the example PaymentAggregate aggregate shown above, we can replay events l
 ```c#
     IAggregate<IPaymentVisitor> aggregate = new PaymentAggregate("stream-id-123");
     aggregate.Replay(1, new []{ new PaymentTaken{ Amount = 100.00m, Currency  = "USD" } });
+```
+
+Unit test pattern (using FluentAssertions):
+```c#
+    var aggregate = new PaymentAggregate("stream-id-123");
+
+    aggregate.TakePayment(100.00m, "USD");
+
+    ((IAggregate<IPaymentVisitor>) aggregate).UncommitedEvents.OfType<PaymentTaken>().Count().Should().Be(1);
 ```
