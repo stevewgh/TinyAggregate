@@ -17,10 +17,7 @@ public class PaymentVisitor
   public PaymentVisitor(PaymentAggregate aggregate) 
   {
     this.aggregate = aggregate;
-  }
-  
-  
-  
+  }  
 }
 
 public class PaymentAggregate : Aggregate<PaymentVisitor>
@@ -30,7 +27,6 @@ public class PaymentAggregate : Aggregate<PaymentVisitor>
   protected override void ApplyEvent(IAcceptVisitors<PaymentVisitor> domainEvent)
   {
       base.ApplyEvent(domainEvent);
-      
       paymentIntent.Accept(this);
   }
 }
