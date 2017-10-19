@@ -8,8 +8,47 @@ Aggregate designed to simplify development when using an [event sourcing pattern
 * Uncommited events allow unit testing of the aggregate
 * Version numbers allows easy concurrency checks when integrating with Event stores
 
-Example use (Aggregate and Visitor as separate implementations)
+Example use (Aggregate and Visitor in a single class)
 
+```c#
+    public class PaymentTaken : IAcceptVisitors<IPaymentVisitor>
+    {
+        public decimal Amount { get; set; }
+        public string Currency { get; set; }
+        public void Accept(IPaymentVisitor visitor)
+        {
+            visitor.Accept(this);
+        }
+    }
+
+    public interface IPaymentVisitor
+    {
+        void Accept(PaymentTaken paymentTaken);
+    }
+
+    public class PaymentAggregate : Aggregate<IPaymentVisitor>, IPaymentVisitor
+    {
+        private decimal Amount { get; set; }
+
+        private string Currency { get; set; }
+
+        public PaymentAggregate(string streamId) : base(streamId) { }
+
+        protected override void ApplyEvent(IAcceptVisitors<IPaymentVisitor> domainEvent)
+        {
+            base.ApplyEvent(domainEvent);
+            domainEvent.Accept(this);
+        }
+
+        public void Accept(PaymentTaken paymentTaken)
+        {
+            Amount = paymentTaken.Amount;
+            Currency = paymentTaken.Currency;
+        }
+    }
+```
+
+Example use (Aggregate and Visitor as separate implementations)
 ```c#
     public class PaymentTaken : IAcceptVisitors<PaymentVisitor>
     {
