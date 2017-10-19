@@ -8,6 +8,10 @@ Aggregate designed to simplify development when using an [event sourcing pattern
 * Uncommited events allow unit testing of the aggregate by asserting the events produced by the aggregate
 * Version numbers allows easy concurrency checks when integrating with Event stores
 
+```
+Install-Package TinyAggregate
+```
+
 Example use (Aggregate and Visitor in a single class)
 
 ```c#

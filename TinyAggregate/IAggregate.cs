@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Aggregate
+namespace TinyAggregate
 {
-    public interface IAggregate<TVisitor> where TVisitor : class
+    public interface IAggregate<TVisitor>
     {
         IEnumerable<IAcceptVisitors<TVisitor>> UncommitedEvents { get; }
 

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Aggregate
+namespace TinyAggregate
 {
-    public abstract class Aggregate<TVisitor> : IAggregate<TVisitor> where TVisitor : class
+    public abstract class Aggregate<TVisitor> : IAggregate<TVisitor>
     {
         private readonly List<IAcceptVisitors<TVisitor>> uncommitedEvents = new List<IAcceptVisitors<TVisitor>>();
         private readonly string streamId;
