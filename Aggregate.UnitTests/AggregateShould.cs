@@ -14,7 +14,7 @@ namespace Aggregate.UnitTests
         [Fact]
         public void Have_A_LoadedAt_Version_Equal_To_Zero_When_Creating_A_New_Aggregate()
         {
-            IAggregate sut = new WidgetAggregate(StreamId);
+            IAggregate<IWidgetVisitor> sut = new WidgetAggregate(StreamId);
 
             sut.LoadedAtVersion.Should().Be(0);
         }
@@ -22,7 +22,7 @@ namespace Aggregate.UnitTests
         [Fact]
         public void Have_A_Current_Version_Equal_To_Zero_When_Creating_A_New_Aggregate()
         {
-            IAggregate sut = new WidgetAggregate(StreamId);
+            IAggregate<IWidgetVisitor> sut = new WidgetAggregate(StreamId);
 
             sut.CurrentVersion.Should().Be(0);
         }
@@ -34,8 +34,8 @@ namespace Aggregate.UnitTests
 
             sut.DoSomethingThatCreatesADomainEvent(Guid.NewGuid());
 
-            ((IAggregate)sut).CurrentVersion.Should().Be(1);
-            ((IAggregate) sut).UncommitedEvents.Count().Should().Be(1);
+            ((IAggregate<IWidgetVisitor>)sut).CurrentVersion.Should().Be(1);
+            ((IAggregate<IWidgetVisitor>) sut).UncommitedEvents.Count().Should().Be(1);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Aggregate.UnitTests
 
             sut.DoSomethingThatCreatesADomainEvent(Guid.NewGuid());
 
-            ((IAggregate)sut).LoadedAtVersion.Should().Be(0);
+            ((IAggregate<IWidgetVisitor>)sut).LoadedAtVersion.Should().Be(0);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Aggregate.UnitTests
                 new WidgetDomainEvent { DomainProperty = newGuid.ToString() }
             };
 
-            IAggregate sut = new WidgetAggregate(StreamId);
+            IAggregate<IWidgetVisitor> sut = new WidgetAggregate(StreamId);
             sut.Replay(loadedAtVersion, domainEvents);
 
             sut.LoadedAtVersion.Should().Be(loadedAtVersion);
@@ -86,7 +86,7 @@ namespace Aggregate.UnitTests
             };
 
             var sut = new WidgetAggregate(StreamId);
-            ((IAggregate)sut).Replay(1, domainEvents);
+            ((IAggregate<IWidgetVisitor>)sut).Replay(1, domainEvents);
 
             sut.LatestDomainProperty.Should().Be(newGuid.ToString());
         }
@@ -100,7 +100,7 @@ namespace Aggregate.UnitTests
                 new WidgetDomainEvent { DomainProperty = newGuid.ToString() }
             };
 
-            IAggregate sut = new WidgetAggregate(StreamId);
+            IAggregate<IWidgetVisitor> sut = new WidgetAggregate(StreamId);
             sut.Replay(1, domainEvents);
 
             sut.UncommitedEvents.Count().Should().Be(0);

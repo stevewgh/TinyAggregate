@@ -2,9 +2,9 @@
 
 namespace Aggregate
 {
-    public interface IAggregate
+    public interface IAggregate<TVisitor> where TVisitor : class
     {
-        IEnumerable<object> UncommitedEvents { get; }
+        IEnumerable<IAcceptVisitors<TVisitor>> UncommitedEvents { get; }
 
         int CurrentVersion { get; }
 
@@ -14,6 +14,6 @@ namespace Aggregate
 
         void ClearUncommitedEvents();
 
-        void Replay(int version, IEnumerable<object> events);
+        void Replay(int version, IEnumerable<IAcceptVisitors<TVisitor>> events);
     }
 }

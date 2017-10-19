@@ -2,9 +2,9 @@
 
 namespace Aggregate
 {
-    public abstract class Aggregate : IAggregate
+    public abstract class Aggregate<TVisitor> : IAggregate<TVisitor> where TVisitor : class
     {
-        private readonly List<object> uncommitedEvents = new List<object>();
+        private readonly List<IAcceptVisitors<TVisitor>> uncommitedEvents = new List<IAcceptVisitors<TVisitor>>();
         private readonly string streamId;
         private int loadedAtVersion;
 
@@ -15,15 +15,15 @@ namespace Aggregate
             this.streamId = streamId;
         }
 
-        int IAggregate.CurrentVersion => CurrentVersion;
+        int IAggregate<TVisitor>.CurrentVersion => CurrentVersion;
 
-        int IAggregate.LoadedAtVersion => loadedAtVersion;
+        int IAggregate<TVisitor>.LoadedAtVersion => loadedAtVersion;
 
-        IEnumerable<object> IAggregate.UncommitedEvents => uncommitedEvents;
+        IEnumerable<IAcceptVisitors<TVisitor>> IAggregate<TVisitor>.UncommitedEvents => uncommitedEvents;
 
-        string IAggregate.StreamId => streamId;
+        string IAggregate<TVisitor>.StreamId => streamId;
 
-        void IAggregate.Replay(int version, IEnumerable<object> events)
+        void IAggregate<TVisitor>.Replay(int version, IEnumerable<IAcceptVisitors<TVisitor>> events)
         {
             foreach (var domainEvent in events)
             {
@@ -33,32 +33,16 @@ namespace Aggregate
             uncommitedEvents.Clear();
         }
 
-        protected virtual void ApplyEvent(object domainEvent)
+        protected virtual void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
         {
             CurrentVersion++;
             uncommitedEvents.Add(domainEvent);
         }
 
-        void IAggregate.ClearUncommitedEvents()
+        void IAggregate<TVisitor>.ClearUncommitedEvents()
         {
             uncommitedEvents.Clear();
         }
 
-    }
-
-    public abstract class Aggregate<TVisitor> : Aggregate where TVisitor : class 
-    {
-        protected Aggregate(string streamId) : base(streamId) { }
-
-        protected sealed override void ApplyEvent(object domainEvent)
-        {
-            var domainEventThatAcceptsVisitors = domainEvent as IAcceptVisitors<TVisitor>;
-            ApplyEvent(domainEventThatAcceptsVisitors);
-        }
-
-        protected virtual void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
-        {
-            base.ApplyEvent(domainEvent);
-        }
     }
 }
