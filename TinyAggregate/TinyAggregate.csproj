@@ -2,7 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Steve Ward</Authors>
+    <Company>Steve Ward</Company>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/stevewgh/TinyAggregate/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/stevewgh/TinyAggregate</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/stevewgh/TinyAggregate</RepositoryUrl>
+    <PackageTags>TinyAggregate DDD Aggregate</PackageTags>
+    <Description>Tiny Domain Driven Design (DDD) Aggregate designed to simplify development when using an event sourcing pattern.</Description>
   </PropertyGroup>
 
 </Project>
