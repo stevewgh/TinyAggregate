@@ -6,6 +6,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TinyAggregate", "TinyAggreg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TinyAggregate.UnitTests", "TinyAggregate.UnitTests\TinyAggregate.UnitTests.csproj", "{CD7DB445-BFDF-45E6-9E2E-9BE5CE23A1B9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67ADB071-4BDF-4F4C-8FE1-F9D358262E1D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -37,6 +37,9 @@ namespace TinyAggregate
         {
             CurrentVersion++;
             uncommitedEvents.Add(domainEvent);
+            if (this is TVisitor) {
+                domainEvent.Accept((TVisitor)(object)this);
+            }
         }
 
         void IAggregate<TVisitor>.ClearUncommitedEvents()

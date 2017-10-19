@@ -10,15 +10,8 @@ namespace TinyAggregate.UnitTests.Payment
 
         public PaymentAggregate(string streamId) : base(streamId) { }
 
-        protected override void ApplyEvent(IAcceptVisitors<IPaymentVisitor> domainEvent)
-        {
-            base.ApplyEvent(domainEvent);
-            domainEvent.Accept(this);
-        }
-
         public void TakePayment(decimal amount, string currency)
         {
-            //  TODO: validation and taking payment
             var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
             ApplyEvent(domainEvent);
         }
