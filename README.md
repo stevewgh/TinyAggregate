@@ -29,7 +29,7 @@ Example
             ApplyEvent(domainEvent);
         }
         
-		// Implmentation of the IPaymentVisitor interface
+	// Implmentation of the IPaymentVisitor interface
         public void Accept(PaymentTaken paymentTaken)
         {
             Amount = paymentTaken.Amount;
@@ -37,7 +37,7 @@ Example
         }
     }
 
-	// Event which is created by the TakePayment method
+    // Event which is created by the TakePayment method
     public class PaymentTaken : IAcceptVisitors<IPaymentVisitor>
     {
         public decimal Amount { get; set; }
