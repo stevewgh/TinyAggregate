@@ -48,47 +48,8 @@ Example use (Aggregate and Visitor in a single class)
     }
 ```
 
-Example use (Aggregate and Visitor as separate implementations)
+Using the example PaymentAggregate aggregate shown above, we can replay events like this:
 ```c#
-    public class PaymentTaken : IAcceptVisitors<PaymentVisitor>
-    {
-        public decimal Amount { get; set; }
-        public string Currency { get; set; }
-        public void Accept(PaymentVisitor visitor)
-        {
-            visitor.Accept(this);
-        }
-    }
-    
-    public class PaymentVisitor
-    {
-        private readonly PaymentAggregate aggregate;
-
-        public PaymentVisitor(PaymentAggregate aggregate)
-        {
-            this.aggregate = aggregate;
-        }
-
-        public void Accept(PaymentTaken paymentTaken)
-        {
-            aggregate.Amount = paymentTaken.Amount;
-            aggregate.Currency = paymentTaken.Currency;
-        }
-    }
-    
-    public class PaymentAggregate : Aggregate<PaymentVisitor>
-    {
-        public decimal Amount { get; set; }
-        public string Currency { get; set; }
-
-        public PaymentAggregate(string streamId) : base(streamId) { }
-
-        protected override void ApplyEvent(IAcceptVisitors<PaymentVisitor> domainEvent)
-        {
-            base.ApplyEvent(domainEvent);
-
-            var visitor = new PaymentVisitor(this);
-            domainEvent.Accept(visitor);
-        }
-    }
+    IAggregate<IPaymentVisitor> aggregate = new PaymentAggregate("stream-id-123");
+    aggregate.Replay(1, new []{ new PaymentTaken{ Amount = 100.00m, Currency  = "USD" } });
 ```
