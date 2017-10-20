@@ -10,8 +10,6 @@ namespace TinyAggregate
 
         int LoadedAtVersion { get; }
 
-        string StreamId { get; }
-
         void ClearUncommitedEvents();
 
         void Replay(int version, IEnumerable<IAcceptVisitors<TVisitor>> events);

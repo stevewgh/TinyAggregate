@@ -9,14 +9,13 @@ namespace TinyAggregate.UnitTests
 {
     public class TinyAggregateShould
     {
-        private const string StreamId = "stream-id-123";
         private const decimal Amount = 100.00m;
         private const string Currency = "USD";
 
         [Fact]
         public void Have_A_LoadedAt_Version_Equal_To_Zero_When_Creating_A_New_Aggregate()
         {
-            IAggregate<IPaymentVisitor> sut = new PaymentAggregate(StreamId);
+            IAggregate<IPaymentVisitor> sut = new PaymentAggregate();
 
             sut.LoadedAtVersion.Should().Be(0);
         }
@@ -24,7 +23,7 @@ namespace TinyAggregate.UnitTests
         [Fact]
         public void Have_A_Current_Version_Equal_To_Zero_When_Creating_A_New_Aggregate()
         {
-            IAggregate<IPaymentVisitor> sut = new PaymentAggregate(StreamId);
+            IAggregate<IPaymentVisitor> sut = new PaymentAggregate();
 
             sut.CurrentVersion.Should().Be(0);
         }
@@ -32,7 +31,7 @@ namespace TinyAggregate.UnitTests
         [Fact]
         public void Have_A_Current_Version_Equal_To_One_When_Creating_A_New_Event()
         {
-            var sut = new PaymentAggregate(StreamId);
+            var sut = new PaymentAggregate();
 
             sut.TakePayment(100.00m, "USD");
 
@@ -43,7 +42,7 @@ namespace TinyAggregate.UnitTests
         [Fact]
         public void Have_A_LoadedAt_Version_Equal_To_Zero_After_Creating_A_New_Event()
         {
-            var sut = new PaymentAggregate(StreamId);
+            var sut = new PaymentAggregate();
 
             sut.TakePayment(100.00m, "USD");
 
@@ -53,7 +52,7 @@ namespace TinyAggregate.UnitTests
         [Fact]
         public void Apply_Domain_Events_To_Itself()
         {
-            var sut = new PaymentAggregate(StreamId);
+            var sut = new PaymentAggregate();
 
             sut.TakePayment(Amount, Currency);
 
@@ -72,7 +71,7 @@ namespace TinyAggregate.UnitTests
                 new PaymentTaken { Amount = Amount, Currency = Currency } 
             };
 
-            IAggregate<IPaymentVisitor> sut = new PaymentAggregate(StreamId);
+            IAggregate<IPaymentVisitor> sut = new PaymentAggregate();
             sut.Replay(loadedAtVersion, domainEvents);
 
             sut.LoadedAtVersion.Should().Be(loadedAtVersion);
@@ -86,7 +85,7 @@ namespace TinyAggregate.UnitTests
                 new PaymentTaken { Amount = Amount, Currency = Currency }
             };
 
-            var sut = new PaymentAggregate(StreamId);
+            var sut = new PaymentAggregate();
             ((IAggregate<IPaymentVisitor>)sut).Replay(1, domainEvents);
 
             sut.Amount.Should().Be(Amount);
@@ -101,7 +100,7 @@ namespace TinyAggregate.UnitTests
                 new PaymentTaken { Amount = Amount, Currency = Currency }
             };
 
-            IAggregate<IPaymentVisitor> sut = new PaymentAggregate(StreamId);
+            IAggregate<IPaymentVisitor> sut = new PaymentAggregate();
             sut.Replay(1, domainEvents);
 
             sut.UncommitedEvents.Count().Should().Be(0);
