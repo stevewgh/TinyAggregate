@@ -21,8 +21,6 @@ Example
 
         private string Currency { get; set; }
 
-        public PaymentAggregate(string streamId) : base(streamId) { }
-
         public void TakePayment(decimal amount, string currency)
         {
             var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
