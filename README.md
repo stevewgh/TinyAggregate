@@ -1,15 +1,14 @@
 # TinyAggregate
-A Tiny Domain Driven Design (DDD) Aggregate
+A Tiny Domain Driven Design (DDD) Aggregate base class and interfaces which are designed to simplify development when using an [event sourcing pattern](https://martinfowler.com/eaaDev/EventSourcing.html).
 
-Aggregate designed to simplify development when using an [event sourcing pattern](https://martinfowler.com/eaaDev/EventSourcing.html).
-
-* Visitor pattern to apply Domain Events to the Aggregate
-* Consistent event handling (applying them and replaying when loading an aggregate)
+### Highlights
+* No magic! Events are applied to the aggregate using the Visitor pattern
+* Auto wiring of event handling by the `Aggregate<TVisitor>` class
+* Consistent event handling (applying and replaying events)
 * Uncommited events allow unit testing of the aggregate by asserting the events produced by the aggregate
 * Version numbers allows easy concurrency checks when integrating with Event stores
 
 ## Getting started
-Get TinyAggregate from NuGet
 ```
 Install-Package TinyAggregate
 ```
@@ -22,7 +21,7 @@ Install-Package TinyAggregate
     }
 ```
 
-2. Create your domain events, implement the `IAcceptVisitors<TVisitor>` interface and supply the visitor interface you created (`IVehicleVisitor` in this case) as the generic parameter. Provide the implementation and call the visitor with the object instance (see example).
+2. Create your domain events, implement the `IAcceptVisitors<TVisitor>` interface and supply the visitor interface you created  as the generic parameter. Provide the implementation and call the visitor with the object instance (see example).
 ```c#
     class EngineStarted : IAcceptVisitors<IVehicleVisitor>
     {
@@ -32,7 +31,7 @@ Install-Package TinyAggregate
     }
 ```
 
-3. Create your aggregate, either inherit from the `Aggregate<TVisitor>` class and supply the visitor interface you created as the generic parameter. Provide domain specific operations (`StartTheEngine()` in this case) and any domain events generated should be passed to the `ApplyEvent()` method.
+3. Create your aggregate, inherit from the `Aggregate<TVisitor>` class and supply the visitor interface you created as the generic parameter. Provide your domain specific operations and any domain events generated should be passed to the `ApplyEvent()` method.
 ```c#
     class Vehicle : Aggregate<IVehicleVisitor>
     {
@@ -57,10 +56,11 @@ public void Vehicle_Should_Have_Started_When_StartTheEngine_Is_Called()
 ```
 
 ### Doing something with the events
-So now you've got an aggregate and events and it's all tested and working great, what now? Well this is where your domain will dictate what should happen. Our vehicle aggregate supports starting the engine, but nothing tells us the running state, this is where the visitor interface comes into play again. 
+So now you've got an aggregate, it's tested and working great, but what now? Well this is where your domain will dictate what should happen. Our vehicle aggregate supports starting the engine, but nothing tells us if the engine is running, this is where the visitor interface comes into play again. 
 
 It's important to keep the domain action (`StartTheEngine()`) separate to the application of the events which the action creates. This is so that the events can be applied and replayed without the initial domain action being called again. The way we do that in TinyAggregate is by calling the `ApplyEvent()` method.
 
+#### Free event handling wireup
 A nice side effect of implementing the visitor interface on the aggregate is that we are notified when the event should be applied. This wiring up is done in the `Aggregate` class so we don't need to concern ourselves with it. One thing to note, in our `Vehicle` class we have explicitly implemented the `IVehicleVisitor` interface to keep the public interface of the `Vehicle` class clean.
 
 ```c#
