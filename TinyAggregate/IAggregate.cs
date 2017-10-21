@@ -6,12 +6,10 @@ namespace TinyAggregate
     {
         IEnumerable<IAcceptVisitors<TVisitor>> UncommitedEvents { get; }
 
-        int CurrentVersion { get; }
-
         int LoadedAtVersion { get; }
 
         void ClearUncommitedEvents();
 
-        void Replay(int version, IEnumerable<IAcceptVisitors<TVisitor>> events);
+        void Replay(int loadedVersion, IEnumerable<IAcceptVisitors<TVisitor>> events);
     }
 }

@@ -21,25 +21,6 @@ namespace TinyAggregate.UnitTests
         }
 
         [Fact]
-        public void Have_A_Current_Version_Equal_To_Zero_When_Creating_A_New_Aggregate()
-        {
-            IAggregate<IPaymentVisitor> sut = new PaymentAggregate();
-
-            sut.CurrentVersion.Should().Be(0);
-        }
-
-        [Fact]
-        public void Have_A_Current_Version_Equal_To_One_When_Creating_A_New_Event()
-        {
-            var sut = new PaymentAggregate();
-
-            sut.TakePayment(100.00m, "USD");
-
-            ((IAggregate<IPaymentVisitor>)sut).CurrentVersion.Should().Be(1);
-            ((IAggregate<IPaymentVisitor>) sut).UncommitedEvents.Count().Should().Be(1);
-        }
-
-        [Fact]
         public void Have_A_LoadedAt_Version_Equal_To_Zero_After_Creating_A_New_Event()
         {
             var sut = new PaymentAggregate();
