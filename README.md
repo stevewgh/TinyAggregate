@@ -8,12 +8,11 @@ Aggregate designed to simplify development when using an [event sourcing pattern
 * Uncommited events allow unit testing of the aggregate by asserting the events produced by the aggregate
 * Version numbers allows easy concurrency checks when integrating with Event stores
 
-Get it from NuGet
+## Getting started
+Get TinyAggregate from NuGet
 ```
 Install-Package TinyAggregate
 ```
-
-## Getting started
 
 1. Define an interface that acts as the Visitor between the Events and Aggregate. Create a method for all domain events that your aggregate handles.
 ```c#
