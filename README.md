@@ -93,9 +93,42 @@ By implementing the visitor interface on the aggregate we can be notified of whe
     }
 ```
 
-## Replaying events, e.g. loading the aggregate:
+### Saving events:
+How you choose to save the events is up to you, but getting them is really easy.
+```c#
+    var car = new Vehicle();
+    car.StartTheEngine();
+    // save the events somewhere    
+    IEnumerable<IAcceptVisitors<IVehicleVisitor>> events = ((IAggregate<IVehicleVisitor>)car).UncommitedEvents;
+```
+
+### Replaying events, e.g. loading the aggregate:
+Retrieve the events from memory or storage, then call the `Replay` method. You are responsible for telling the aggregate which is the current version, the reason for this is in case the event store has allowed a snapshot to be taken and therefore the number of events being replayed and version number will no longer match.
 ```c#
     var events = GetEventsFromStore();
     var car = new Vehicle();
     ((IAggregate<IVehicleVisitor>)car).Replay(events.Count, events});
+```
+
+### Using a visitor other than the Aggregate
+If you prefer to keep the visitor and aggregate completely separate then you need to override the base implementation of ApplyEvent and call your own visitor instance. However, as the handling of events and storage of any state will be done in different classes, you will need a mechanism of updating one from the other.
+
+```c#
+    class Vehicle : Aggregate<IVehicleVisitor>
+    {
+        private readonly IVehicleVisitor visitor;
+
+        public Vehicle(IVehicleVisitor visitor) {
+            this.visitor = visitor;
+        }
+
+        public void StartTheEngine() {
+            ApplyEvent(new EngineStarted());
+        }
+
+        protected override void ApplyEvent(IAcceptVisitors<IVehicleVisitor> domainEvent) {
+            base.ApplyEvent(domainEvent);
+            domainEvent.Accept(visitor);            
+        }
+    }
 ```
