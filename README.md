@@ -60,7 +60,9 @@ public void Vehicle_Should_Have_Started_When_StartTheEngine_Is_Called()
 ### Doing something with the events
 So now you've got an aggregate and events and it's all tested and working great, what now? Well this is where your domain will dictate what should happen. Our vehicle aggregate supports starting the engine, but nothing tells us the running state, this is where the visitor interface comes into play again. 
 
-By implementing the visitor interface on the aggregate we can be notified of when the event should be applied. In our `Vehicle` aggregate we have explicitly implemented the `IVehicleVisitor` interface to keep the public interface of the aggregate clean.
+It's important to keep the domain action (`StartTheEngine()`) separate to the application of the events which the action creates. This is so that the events can be applied and replayed without the initial domain action being called again. The way we do that in TinyAggregate is by calling the `ApplyEvent()` method.
+
+A nice side effect of implementing the visitor interface on the aggregate is that we are notified when the event should be applied. This wiring up is done in the `Aggregate` class so we don't need to concern ourselves with it. One thing to note, in our `Vehicle` class we have explicitly implemented the `IVehicleVisitor` interface to keep the public interface of the `Vehicle` class clean.
 
 ```c#
     class Vehicle : Aggregate<IVehicleVisitor>, IVehicleVisitor
@@ -71,6 +73,7 @@ By implementing the visitor interface on the aggregate we can be notified of whe
             ApplyEvent(new EngineStarted());
         }
 
+        //  this method will be called when Apply() or Replay() are called with an EngineStarted event
         void IVehicleVisitor.Visit(EngineStarted engineStarted) {
             EngineIsRunning = true;
         }
