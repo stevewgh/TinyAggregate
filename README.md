@@ -46,7 +46,7 @@ Install-Package TinyAggregate
 4. Testing that it works is really easy. Using xUnit we could do something like this (notice the cast to the base interface to expose the UncommitedEvents collection):
 ```c#
 [Fact]
-public void Vehicle_Should_Start_When_StartTheEngine_Is_Called() 
+public void Vehicle_Should_Have_Started_When_StartTheEngine_Is_Called() 
 {
     // arrange
     var car = new Vehicle();
@@ -74,6 +74,22 @@ By implementing the visitor interface on the aggregate we can be notified of whe
         void IVehicleVisitor.Visit(EngineStarted engineStarted) {
             EngineIsRunning = true;
         }
+    }
+```
+
+### Putting it all together:
+```c#
+    static void Main(string[] args)
+    {
+        var car = new Vehicle();
+
+        Console.WriteLine($"Engine running: {car.EngineIsRunning}");
+
+        car.StartTheEngine();
+
+        Console.WriteLine($"Engine running: {car.EngineIsRunning}");
+
+        Console.ReadLine();
     }
 ```
 
