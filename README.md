@@ -1,69 +1,58 @@
-# Aggregate
-Tiny Domain Driven Design (DDD) Aggregate
+# TinyAggregate
+A Tiny Domain Driven Design (DDD) Aggregate
 
 Aggregate designed to simplify development when using an [event sourcing pattern](https://martinfowler.com/eaaDev/EventSourcing.html).
 
 * Visitor pattern to apply Domain Events to the Aggregate
-* Consistent event handling (initial and replay)
+* Consistent event handling (applying them and replaying when loading an aggregate)
 * Uncommited events allow unit testing of the aggregate by asserting the events produced by the aggregate
 * Version numbers allows easy concurrency checks when integrating with Event stores
 
-NuGet
+Get it from NuGet
 ```
 Install-Package TinyAggregate
 ```
 
-Example
+## Getting started
+
+1. Define an interface that acts as the Visitor between the Events and Aggregate. Create a method for all domain events that your aggregate handles.
 ```c#
-    public class PaymentAggregate : TinyAggregate.Aggregate<IPaymentVisitor>, IPaymentVisitor
+    interface IVehicleVisitor
     {
-        private decimal Amount { get; set; }
-
-        private string Currency { get; set; }
-
-        public void TakePayment(decimal amount, string currency)
-        {
-            var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
-            ApplyEvent(domainEvent);
-        }
-        
-	// Implmentation of the IPaymentVisitor interface
-        public void Accept(PaymentTaken paymentTaken)
-        {
-            Amount = paymentTaken.Amount;
-            Currency = paymentTaken.Currency;
-        }
+        void Visit(EngineStarted engineStarted);
     }
-
-    // Event which is created by the TakePayment method
-    public class PaymentTaken : IAcceptVisitors<IPaymentVisitor>
-    {
-        public decimal Amount { get; set; }
-        public string Currency { get; set; }
-        public void Accept(IPaymentVisitor visitor)
-        {
-            visitor.Accept(this);
-        }
-    }
-
-    public interface IPaymentVisitor
-    {
-        void Accept(PaymentTaken paymentTaken);
-    }
-
 ```
 
-Replaying events, e.g. loading the aggregate:
+2. Create your domain events, implement the IAcceptVisitors interface and supply the visitor interface you created (`IVehicleVisitor` in this case). as the generic parameter. Provide the implementation and call the visitor with the object instance (see example).
 ```c#
-    IAggregate<IPaymentVisitor> aggregate = new PaymentAggregate("stream-id-123");
-    aggregate.Replay(1, new []{ new PaymentTaken{ Amount = 100.00m, Currency  = "USD" } });
+    class EngineStarted : IAcceptVisitors<IVehicleVisitor>
+    {
+        public void Accept(IVehicleVisitor visitor) {
+            visitor.Visit(this);
+        }
+    }
 ```
 
-Testing (using FluentAssertions):
+3. Create your aggregate, either inherit from the Aggregate class and supply the visitor interface you created (`IVehicleVisitor` in this case) as the generic parameter. Provide domain specific operations (StartTheEngine in this case) and any domain events generated should be passed to the ApplyEvent method.
 ```c#
-    var aggregate = new PaymentAggregate("stream-id-123");
+    class Vehicle : Aggregate<IVehicleVisitor>
+    {
+        public void StartTheEngine() {
+            ApplyEvent(new EngineStarted());
+        }
+    }
+```
 
-    aggregate.TakePayment(100.00m, "USD");
+## Replaying events, e.g. loading the aggregate:
+```c#
+    var events = GetEventsFromStore();
+    var car = new Vehicle();
+    ((IAggregate<IVehicleVisitor>)car).Replay(events.Count, events});
+```
 
-    ((IAggregate<IPaymentVisitor>) aggregate).UncommitedEvents.OfType<PaymentTaken>().Count().Should().Be(1);
+## Testing (using FluentAssertions):
+```c#
+    var car = new Vehicle();
+    car.StartTheEngine();
+    ((IAggregate<IVehicleVisitor>)car).UncommitedEvents.OfType<EngineStarted>().Count().Should().Be(1);
 ```
