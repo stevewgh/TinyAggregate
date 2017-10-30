@@ -109,7 +109,7 @@ Retrieve the events from memory or storage, then call the `Replay` method. You a
 ```c#
     var events = GetEventsFromStore();
     var car = new Vehicle();
-    ((IAggregate<IVehicleVisitor>)car).Replay(events.Count, events});
+    ((IAggregate<IVehicleVisitor>)car).Replay(events.Count, events);
 ```
 
 ### Using a visitor other than the Aggregate
