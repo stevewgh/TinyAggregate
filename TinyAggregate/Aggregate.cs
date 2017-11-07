@@ -33,6 +33,5 @@ namespace TinyAggregate
         {
             uncommitedEvents.Clear();
         }
-
     }
 }
