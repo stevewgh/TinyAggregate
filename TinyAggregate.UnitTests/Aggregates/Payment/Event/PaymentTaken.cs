@@ -1,4 +1,4 @@
-﻿namespace TinyAggregate.UnitTests.Payment.Event
+﻿namespace TinyAggregate.UnitTests.Aggregates.Payment.Event
 {
     public class PaymentTaken : IAcceptVisitors<IPaymentVisitor>
     {

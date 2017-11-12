@@ -1,8 +1,8 @@
-﻿using TinyAggregate.UnitTests.Payment.Event;
+﻿using TinyAggregate.UnitTests.Aggregates.Payment.Event;
 
-namespace TinyAggregate.UnitTests.Payment
+namespace TinyAggregate.UnitTests.Aggregates.Payment
 {
-    public class PaymentAggregate : Aggregate<IPaymentVisitor>, IPaymentVisitor
+    public class Payment : Aggregate<IPaymentVisitor>, IPaymentVisitor
     {
         internal decimal Amount { get; set; }
 
@@ -14,7 +14,7 @@ namespace TinyAggregate.UnitTests.Payment
             ApplyEvent(domainEvent);
         }
 
-        public void Accept(PaymentTaken paymentTaken)
+        void IPaymentVisitor.Accept(PaymentTaken paymentTaken)
         {
             Amount = paymentTaken.Amount;
             Currency = paymentTaken.Currency;

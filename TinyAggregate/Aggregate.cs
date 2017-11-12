@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TinyAggregate
 {
-    public abstract class Aggregate<TVisitor> : IAggregate<TVisitor>
+    public abstract class Aggregate<TVisitor> : IAggregate<TVisitor> where TVisitor : class
     {
         private readonly List<IAcceptVisitors<TVisitor>> uncommitedEvents = new List<IAcceptVisitors<TVisitor>>();
         private int loadedAtVersion;
@@ -13,25 +14,35 @@ namespace TinyAggregate
 
         void IAggregate<TVisitor>.Replay(int loadedVersion, IEnumerable<IAcceptVisitors<TVisitor>> events)
         {
+            var visitor = GetVisitor();
             foreach (var domainEvent in events)
             {
-                ApplyEvent(domainEvent);
+                ApplyEvent(domainEvent, visitor);
             }
             loadedAtVersion = loadedVersion;
-            uncommitedEvents.Clear();
         }
 
-        protected virtual void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
+        protected void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
         {
             uncommitedEvents.Add(domainEvent);
-            if (this is TVisitor) {
-                domainEvent.Accept((TVisitor)(object)this);
-            }
+            ApplyEvent(domainEvent, GetVisitor());
         }
 
         void IAggregate<TVisitor>.ClearUncommitedEvents()
         {
             uncommitedEvents.Clear();
+        }
+
+        protected virtual TVisitor GetVisitor()
+        {
+            return this as TVisitor ?? throw new InvalidOperationException($"{nameof(GetVisitor)} was about to return null. If your aggregate doesn't implement the TVisitor inerface then you must override {nameof(GetVisitor)} and return the TVisitor instance manually.");
+        }
+
+        private void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent, TVisitor visitor)
+        {
+            if (domainEvent == null) throw new ArgumentNullException(nameof(domainEvent));
+            if (visitor == null) throw new ArgumentNullException(nameof(visitor));
+            domainEvent.Accept(visitor);
         }
     }
 }
