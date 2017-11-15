@@ -2,7 +2,7 @@
 
 namespace TinyAggregate
 {
-    public interface IAggregate<TVisitor>
+    public interface IAggregate<TVisitor> where TVisitor : class
     {
         IEnumerable<IAcceptVisitors<TVisitor>> UncommitedEvents { get; }
 

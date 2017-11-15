@@ -12,4 +12,8 @@
     <Description>Tiny Domain Driven Design (DDD) Aggregate designed to simplify development when using an event sourcing pattern.</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+
 </Project>
