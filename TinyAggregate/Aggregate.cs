@@ -12,9 +12,11 @@ namespace TinyAggregate
 
         IEnumerable<IAcceptVisitors<TVisitor>> IAggregate<TVisitor>.UncommitedEvents => uncommitedEvents;
 
+        protected virtual TVisitor Visitor => this as TVisitor ?? throw new InvalidOperationException($"{nameof(Visitor)} was about to return null. If your aggregate doesn't implement the TVisitor inerface then you must override {nameof(Visitor)} and return the TVisitor instance manually.");
+
         void IAggregate<TVisitor>.Replay(int loadedVersion, IEnumerable<IAcceptVisitors<TVisitor>> events)
         {
-            var visitor = GetVisitor();
+            var visitor = Visitor;
             foreach (var domainEvent in events)
             {
                 ApplyEvent(domainEvent, visitor);
@@ -25,17 +27,12 @@ namespace TinyAggregate
         protected void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent)
         {
             uncommitedEvents.Add(domainEvent);
-            ApplyEvent(domainEvent, GetVisitor());
+            ApplyEvent(domainEvent, Visitor);
         }
 
         void IAggregate<TVisitor>.ClearUncommitedEvents()
         {
             uncommitedEvents.Clear();
-        }
-
-        protected virtual TVisitor GetVisitor()
-        {
-            return this as TVisitor ?? throw new InvalidOperationException($"{nameof(GetVisitor)} was about to return null. If your aggregate doesn't implement the TVisitor inerface then you must override {nameof(GetVisitor)} and return the TVisitor instance manually.");
         }
 
         private void ApplyEvent(IAcceptVisitors<TVisitor> domainEvent, TVisitor visitor)

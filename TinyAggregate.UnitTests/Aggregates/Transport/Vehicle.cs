@@ -5,11 +5,9 @@ namespace TinyAggregate.UnitTests.Aggregates.Transport
 {
     public class Vehicle : Aggregate<IVehicleVisitor>
     {
-        private readonly IVehicleVisitor visitor;
-
         public Vehicle(IVehicleVisitor visitor)
         {
-            this.visitor = visitor ?? throw new ArgumentNullException(nameof(visitor));
+            this.Visitor = visitor ?? throw new ArgumentNullException(nameof(visitor));
         }
 
         public void StartTheEngine()
@@ -17,9 +15,14 @@ namespace TinyAggregate.UnitTests.Aggregates.Transport
             ApplyEvent(new EngineStarted());
         }
 
-        protected override IVehicleVisitor GetVisitor()
+        /// <summary>
+        /// Added to assist unit tests
+        /// </summary>
+        public void ApplyEventForUnitTests(IAcceptVisitors<IVehicleVisitor> domainEvent)
         {
-            return visitor;
+            ApplyEvent(domainEvent);
         }
+
+        protected override IVehicleVisitor Visitor { get; }
     }
 }

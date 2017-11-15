@@ -54,6 +54,12 @@ public void Vehicle_Should_Have_Started_When_StartTheEngine_Is_Called()
     ((IAggregate<IVehicleVisitor>)car).UncommitedEvents.OfType<EngineStarted>().Count().Should().Be(1);
 }
 ```
+A simpler way of accessing the IAggregate interface is to use the ToAggregate() extension method. Using the 
+extension method the assert would look like this:
+```c#
+    // assert
+    car.ToAggregate().UncommitedEvents.OfType<EngineStarted>().Count().Should().Be(1);
+```
 
 ### Doing something with the events
 So now you've got an aggregate, it's tested and working great, but what now? Well this is where your domain will dictate what should happen. Our vehicle aggregate supports starting the engine, but nothing tells us if the engine is running, this is where the visitor interface comes into play again. 
@@ -101,7 +107,7 @@ How you choose to save the events is up to you, but getting them is really easy.
     var car = new Vehicle();
     car.StartTheEngine();
     // save the events somewhere    
-    IEnumerable<IAcceptVisitors<IVehicleVisitor>> events = ((IAggregate<IVehicleVisitor>)car).UncommitedEvents;
+    var events = car.ToAggregate().UncommitedEvents;
 ```
 
 ### Replaying events, e.g. loading the aggregate:
@@ -109,16 +115,21 @@ Retrieve the events from memory or storage, then call the `Replay` method. You a
 ```c#
     var events = GetEventsFromStore();
     var car = new Vehicle();
-    ((IAggregate<IVehicleVisitor>)car).Replay(events.Count, events);
+    car.ToAggregate().Replay(events.Count, events);
 ```
 
-### Using a visitor other than the Aggregate
-If you prefer to keep the visitor and aggregate completely separate then you need to override the base implementation of ApplyEvent and call your own visitor instance. However, as the handling of events and storage of any state will be done in different classes, you will need a mechanism of updating one from the other.
+### Using an injected visitor
+If you prefer to keep the visitor and aggregate completely separate then you need to override the Visitor property and return your own visitor instance. However, as the handling of events and storage of any state will be done in different classes, you will need a mechanism of updating one from the other.
 
 ```c#
     class Vehicle : Aggregate<IVehicleVisitor>
     {
         private readonly IVehicleVisitor visitor;
+
+        protected override IVehicleVisitor Visitor { get; }
+
+		//	set is now internal to allow the injected visitor to set it
+        public bool EngineIsRunning { get; internal set; }
 
         public Vehicle(IVehicleVisitor visitor) {
             this.visitor = visitor;
@@ -126,11 +137,6 @@ If you prefer to keep the visitor and aggregate completely separate then you nee
 
         public void StartTheEngine() {
             ApplyEvent(new EngineStarted());
-        }
-
-        protected override void ApplyEvent(IAcceptVisitors<IVehicleVisitor> domainEvent) {
-            base.ApplyEvent(domainEvent);
-            domainEvent.Accept(visitor);            
         }
     }
 ```

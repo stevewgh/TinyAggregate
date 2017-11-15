@@ -1,5 +1,5 @@
+using System;
 using System.Linq;
-using System.Reflection.Metadata;
 using FluentAssertions;
 using Moq;
 using TinyAggregate.UnitTests.Aggregates.Payment;
@@ -16,12 +16,21 @@ namespace TinyAggregate.UnitTests
         private const string Currency = "USD";
 
         [Fact]
+        public void Refuse_To_Apply_A_Null_Event()
+        {
+            var visitor = new Mock<IVehicleVisitor>();
+            var sut = new Vehicle(visitor.Object);
+
+            Assert.Throws<ArgumentNullException>(() => sut.ApplyEventForUnitTests(null));
+        }
+
+        [Fact]
         public void Use_The_Visitor_When_Applying_Events()
         {
             var visitor = new Mock<IVehicleVisitor>();
             var sut = new Vehicle(visitor.Object);
 
-            sut.StartTheEngine();
+            sut.ApplyEventForUnitTests(new EngineStarted());
 
             visitor.Verify(v => v.Visit(It.IsAny<EngineStarted>()), Times.Once);
         }
@@ -30,19 +39,21 @@ namespace TinyAggregate.UnitTests
         public void Have_Uncommited_Events_After_Applying_Them()
         {
             var sut = new Payment();
+
             sut.TakePayment(Amount, Currency);
-            ((IAggregate<IPaymentVisitor>)sut).UncommitedEvents.Count().Should().NotBe(0);
+
+            sut.ToAggregate().UncommitedEvents.Count().Should().NotBe(0);
         }
 
         [Fact]
-        public void Have_No_Uncommited_Events_After_Clearing_Them()
+        public void Have_Zero_Uncommited_Events_After_Clearing_Them()
         {
             var sut = new Payment();
             sut.TakePayment(Amount, Currency);
 
-            ((IAggregate<IPaymentVisitor>)sut).ClearUncommitedEvents();
+            sut.ToAggregate().ClearUncommitedEvents();
 
-            ((IAggregate<IPaymentVisitor>)sut).UncommitedEvents.Count().Should().Be(0);
+            sut.ToAggregate().UncommitedEvents.Count().Should().Be(0);
         }
 
         [Fact]
@@ -60,18 +71,7 @@ namespace TinyAggregate.UnitTests
 
             sut.TakePayment(100.00m, "USD");
 
-            ((IAggregate<IPaymentVisitor>)sut).LoadedAtVersion.Should().Be(0);
-        }
-
-        [Fact]
-        public void Apply_Domain_Events_To_Itself()
-        {
-            var sut = new Payment();
-
-            sut.TakePayment(Amount, Currency);
-
-            sut.Amount.Should().Be(Amount);
-            sut.Currency.Should().Be(Currency);
+            sut.ToAggregate().LoadedAtVersion.Should().Be(0);
         }
 
         [Theory]
@@ -99,14 +99,14 @@ namespace TinyAggregate.UnitTests
             };
 
             var sut = new Payment();
-            ((IAggregate<IPaymentVisitor>)sut).Replay(1, domainEvents);
+            sut.ToAggregate().Replay(1, domainEvents);
 
             sut.Amount.Should().Be(Amount);
             sut.Currency.Should().Be(Currency);
         }
 
         [Fact]
-        public void Contain_Zero_Uncommited_Events_After_Replaying_Domain_Events()
+        public void Have_Zero_Uncommited_Events_After_Replaying_Domain_Events()
         {
             var domainEvents = new[]
             {
