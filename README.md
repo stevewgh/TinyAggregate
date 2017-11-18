@@ -128,7 +128,7 @@ If you prefer to keep the visitor and aggregate completely separate then you nee
 
         protected override IVehicleVisitor Visitor { get; }
 
-		//	set is now internal to allow the injected visitor to set it
+	// set is now internal to allow the injected visitor to set it
         public bool EngineIsRunning { get; internal set; }
 
         public Vehicle(IVehicleVisitor visitor) {
