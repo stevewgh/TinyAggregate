@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -9,7 +10,6 @@ namespace TinyAggregate.Analyzer
     public class TinyAggregateAnalyzerAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "TinyAggregateAnalyzer";
-
         private static readonly DiagnosticDescriptor MustImplementTVisitorOrOverrideVisitorRule = new DiagnosticDescriptor(
             DiagnosticId, 
             "Aggregate must implement TVisitor or override the Visitor property.",
@@ -23,40 +23,54 @@ namespace TinyAggregate.Analyzer
 
         public override void Initialize(AnalysisContext context)
         {
-            // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
             context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
         }
 
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
-            // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
             var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
 
             if (IsAggregate(namedTypeSymbol))
             {
-                // Find just those named type symbols with names containing lowercase letters.
-                if (namedTypeSymbol.Name.ToCharArray().Any(char.IsLower))
-                {
-                    // For all such symbols, produce a diagnostic.
-                    var diagnostic = Diagnostic.Create(MustImplementTVisitorOrOverrideVisitorRule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+                var ivisitorInterfaceGenericArgument = namedTypeSymbol.AllInterfaces.First(symbol => symbol.IsGenericType && symbol.Name == "IAggregate").TypeArguments.First();
 
-                    context.ReportDiagnostic(diagnostic);
+                var implemented = namedTypeSymbol.AllInterfaces.Any(symbol => symbol.Equals(ivisitorInterfaceGenericArgument));
+
+                if (implemented)
+                {
+                    return;
                 }
+
+                var diagnostic = Diagnostic.Create(MustImplementTVisitorOrOverrideVisitorRule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+                context.ReportDiagnostic(diagnostic);
             }
         }
 
         private static bool IsAggregate(INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.TypeKind == TypeKind.Class 
-                   && namedTypeSymbol.BaseType.ContainingNamespace.Name == typeof(Aggregate<object>).Namespace
-                   && namedTypeSymbol.AllInterfaces.Any(symbol => symbol.Name == "IAggregate" && symbol.ContainingNamespace.Name == typeof(IAggregate<object>).Namespace);
-        }
+            if (namedTypeSymbol.TypeKind != TypeKind.Class || namedTypeSymbol.IsAbstract)
+            {
+                return false;
+            }
 
-        private static bool ImplementsTVisitor(INamedTypeSymbol namedTypeSymbol)
-        {
-            return false;
-        }
+            var baseTypes = new List<INamedTypeSymbol>();
+            var baseType = namedTypeSymbol.BaseType;
+            while (baseType != null)
+            {
+                baseTypes.Add(baseType);
+                baseType = baseType.BaseType;
+            }
 
+            const string namespaceName = "TinyAggregate";
+            const string typeName = "IAggregate";
+
+            // TODO: find a slicker way to match the type and namespace
+            return baseTypes.Any(symbol => symbol.TypeKind == TypeKind.Class
+                                           && symbol.ContainingNamespace.Name == namespaceName
+                                           && symbol.AllInterfaces.Any(typeSymbol => 
+                                               typeSymbol.Name == typeName 
+                                               && typeSymbol.ContainingNamespace.Name == namespaceName));
+        }
     }
 }

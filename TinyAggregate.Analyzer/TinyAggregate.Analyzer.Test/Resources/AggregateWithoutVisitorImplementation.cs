@@ -5,7 +5,16 @@
         void Visit();
     }
 
-    public class AggregateWithoutVisitorImplementation : Aggregate<IVisitor>
+    public abstract class AggregateBase : Aggregate<IVisitor>
     {
+
+    }
+
+    public class AggregateWithoutVisitorImplementation : AggregateBase, IVisitor
+    {
+        public void Visit()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
