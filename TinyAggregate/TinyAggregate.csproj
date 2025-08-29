@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFramework>.net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Steve Ward</Authors>
     <Company>Steve Ward</Company>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/stevewgh/TinyAggregate/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/stevewgh/TinyAggregate/master/LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/stevewgh/TinyAggregate</PackageProjectUrl>
     <RepositoryUrl>https://github.com/stevewgh/TinyAggregate</RepositoryUrl>
     <PackageTags>TinyAggregate DDD Aggregate</PackageTags>
