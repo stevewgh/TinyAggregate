@@ -2,14 +2,14 @@
 
 namespace TinyAggregate
 {
-    public interface IAggregate<TVisitor> where TVisitor : class
+    public interface IAggregate<TEventUnion> where TEventUnion : IEventUnion
     {
-        IEnumerable<IAcceptVisitors<TVisitor>> UncommitedEvents { get; }
+        IEnumerable<TEventUnion> UncommitedEvents { get; }
 
         int LoadedAtVersion { get; }
 
         void ClearUncommitedEvents();
 
-        void Replay(int loadedVersion, IEnumerable<IAcceptVisitors<TVisitor>> events);
+        void Replay(int loadedVersion, IEnumerable<TEventUnion> events);
     }
 }

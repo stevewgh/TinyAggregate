@@ -2,7 +2,7 @@
 {
     public static class AggregateTestingExtensions
     {
-        public static IAggregate<TVisitor> ToAggregate<TVisitor>(this IAggregate<TVisitor> aggregate) where TVisitor : class
+        public static IAggregate<TEventUnion> ToAggregate<TEventUnion>(this IAggregate<TEventUnion> aggregate) where TEventUnion : IEventUnion
         {
             return aggregate;
         }

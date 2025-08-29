@@ -1,23 +1,28 @@
-﻿using TinyAggregate.UnitTests.Aggregates.Payment.Event;
+﻿using System.Threading.Tasks;
+using TinyAggregate.UnitTests.Aggregates.Payment.Event;
 
-namespace TinyAggregate.UnitTests.Aggregates.Payment
+namespace TinyAggregate.UnitTests.Aggregates.Payment;
+
+public class Payment : Aggregate<PaymentTaken>
 {
-    public class Payment : Aggregate<IPaymentVisitor>, IPaymentVisitor
+    internal decimal Amount { get; set; }
+
+    internal string Currency { get; set; }
+
+    public void TakePayment(decimal amount, string currency)
     {
-        internal decimal Amount { get; set; }
+        var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
+        ApplyEvent(domainEvent);
+    }
 
-        internal string Currency { get; set; }
+    private void Apply(PaymentTaken paymentTaken)
+    {
+        Amount = paymentTaken.Amount;
+        Currency = paymentTaken.Currency;
+    }
 
-        public void TakePayment(decimal amount, string currency)
-        {
-            var domainEvent = new PaymentTaken { Amount = amount, Currency = currency };
-            ApplyEvent(domainEvent);
-        }
-
-        void IPaymentVisitor.Accept(PaymentTaken paymentTaken)
-        {
-            Amount = paymentTaken.Amount;
-            Currency = paymentTaken.Currency;
-        }
+    protected override void RouteEvent(PaymentTaken domainEvent)
+    {
+        Apply(domainEvent);
     }
 }

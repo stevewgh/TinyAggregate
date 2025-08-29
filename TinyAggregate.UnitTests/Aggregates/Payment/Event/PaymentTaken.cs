@@ -1,12 +1,7 @@
-﻿namespace TinyAggregate.UnitTests.Aggregates.Payment.Event
+﻿namespace TinyAggregate.UnitTests.Aggregates.Payment.Event;
+
+public class PaymentTaken : IEventUnion
 {
-    public class PaymentTaken : IAcceptVisitors<IPaymentVisitor>
-    {
-        public decimal Amount { get; set; }
-        public string Currency { get; set; }
-        public void Accept(IPaymentVisitor visitor)
-        {
-            visitor.Accept(this);
-        }
-    }
+    public decimal Amount { get; set; }
+    public string Currency { get; set; }
 }
